@@ -1,0 +1,12 @@
+server:
+  grpc_addr: ":50051"
+db:
+  dsn: "postgres://app:app@localhost:5432/auth_db?sslmode=disable"
+jwt:
+  secret: "ultra-secret"
+  access_ttl: "15m"
+  refresh_ttl: "168h"
+  iss: "auth-service"
+  aud: "gateway"
+clients:
+  user_service_addr: "localhost:50052"

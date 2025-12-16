@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "friend-service/proto/gen/user/v1;userv1";
+
+service UserService {
+	rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse) {
+		option (google.api.http) = {
+			post: "/v1/users/profile"
+			body: "*"
+		};
+	}
+
+	rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {
+		option (google.api.http) = {
+			get: "/v1/users/profile/{user_id}"
+		};
+	}
+
+	rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+		option (google.api.http) = {
+			put: "/v1/users/me/profile"
+			body: "*"
+		};
+	}
+
+	rpc DeleteProfile(DeleteProfileRequest) returns (DeleteProfileResponse) {
+		option (google.api.http) = {
+			delete: "/v1/users/me/profile"
+		};
+	}
+
+	rpc GetProfileList(GetProfileListRequest) returns (GetProfileListResponse) {
+		option (google.api.http) = {
+			get: "/v1/users/profiles"
+		};
+	}
+
+	rpc AddFriend(AddFriendRequest) returns (AddFriendResponse) {
+		option (google.api.http) = {
+			post: "/v1/users/me/friend"
+			body: "*"
+		};
+	}
+
+	rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse) {
+		option (google.api.http) = {
+			get: "/v1/users/friends/{user_id}"
+		};
+	}
+
+	rpc DeleteFriend(DeleteFriendRequest) returns (DeleteFriendResponse) {
+		option (google.api.http) = {
+			delete: "/v1/users/me/friend/{friend_id}"
+		};
+	}
+}
+
+message CreateProfileRequest {
+	string user_id = 1;
+	string username = 2;
+}
+
+message CreateProfileResponse {
+	string user_id = 1;
+	string username = 2;
+}
+
+message GetProfileRequest {
+	string user_id = 1;
+}
+
+message GetProfileResponse {
+	string user_id = 1;
+	string username = 2;
+}
+
+message UpdateProfileRequest {
+	string user_id = 1;
+	string username = 2;
+}
+
+message UpdateProfileResponse {
+	string user_id = 1;
+	string username = 2;
+}
+
+message DeleteProfileRequest {
+	string user_id = 1;
+}
+
+message DeleteProfileResponse {}
+
+message GetProfileListRequest {}
+
+message GetProfileListResponse {
+	repeated Profile profiles = 1;
+}
+
+message Profile {
+	string user_id = 1;
+	string username = 2;
+}
+
+message AddFriendRequest {
+	string user_id = 1;
+	string friend_id = 2;
+}
+
+message AddFriendResponse {
+	repeated string friend_ids = 1;
+}
+
+message GetFriendsRequest {
+	string user_id = 1;
+}
+
+message GetFriendsResponse {
+	repeated string friend_ids = 1;
+}
+
+message DeleteFriendRequest {
+	string user_id = 1;
+	string friend_id = 2;
+}
+
+message DeleteFriendResponse {}

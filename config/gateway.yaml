@@ -1,0 +1,13 @@
+server:
+  http_addr: ":8080"
+  read_timeout: "15s"
+  write_timeout: "15s"
+
+backends:
+  auth_service_addr: "localhost:50051"
+  user_service_addr: "localhost:50052"
+
+jwt:
+  secret: "ultra-secret"
+  iss: "auth-service"
+  aud: "gateway"

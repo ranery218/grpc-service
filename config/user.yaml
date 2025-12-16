@@ -1,0 +1,4 @@
+server:
+  grpc_addr: ":50052"
+db:
+  dsn: "postgres://app:app@localhost:5432/user_db?sslmode=disable"
