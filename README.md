@@ -47,46 +47,33 @@ go run ./cmd/auth-service
 go run ./cmd/gateway
 ```
 
-## gRPC тесты (без reflection, с указанием proto)
-Учти include для googleapis:
-```
-export GAPI="$(go env GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis"
-```
+## HTTP через gateway (основное тестирование)
+Шлюз на `:8080`, REST → gRPC. Публичные маршруты не требуют токен, остальные с `Authorization: Bearer <access_token>`.
 
-- Register (auth):
-```
-grpcurl -plaintext \
-  -import-path proto \
-  -import-path "$GAPI" \
-  -proto proto/auth/v1/auth.proto \
-  -d '{"username":"alice","email":"a@ex.com","password":"pass12345"}' \
-  localhost:50051 auth.v1.AuthService/Register
-```
-- Login:
-```
-grpcurl -plaintext -import-path proto -import-path "$GAPI" \
-  -proto proto/auth/v1/auth.proto \
-  -d '{"email":"a@ex.com","password":"pass12345"}' \
-  localhost:50051 auth.v1.AuthService/Login
-```
-- Refresh/Logout аналогично (подставь refresh_token).
+- `POST /v1/auth/register`  
+  Body: `{"username":"alice","email":"a@ex.com","password":"pass12345"}`  
+  Ответ: `{"accessToken","accessExpiresAt","refreshToken","refreshExpiresAt"}`
 
-- User-service CreateProfile:
-```
-grpcurl -plaintext -import-path proto -import-path "$GAPI" \
-  -proto proto/user/v1/user.proto \
-  -d '{"user_id":"<uuid>","username":"alice"}' \
-  localhost:50052 user.v1.UserService/CreateProfile
-```
+- `POST /v1/auth/login`  
+  Body: `{"email":"a@ex.com","password":"pass12345"}`  
+  Ответ: `{"accessToken","accessExpiresAt","refreshToken","refreshExpiresAt"}`
 
-## HTTP через gateway
-(если JWT-миддлварь включена, публичные пути `/v1/auth/register`, `/v1/auth/login` не требуют токена):
-```
-curl -X POST http://localhost:8080/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"a@ex.com","password":"pass12345"}'
-```
-Остальные эндпоинты — с `Authorization: Bearer <access>`.
+- `POST /v1/auth/refresh`  
+  Body: `{"refresh_token":"..."}` → новый `access/refresh`.
+
+- `POST /v1/auth/logout`  
+  Body: `{"refresh_token":"..."}` → 200 OK.
+
+- `POST /v1/user/profile`  
+  Body: `{"user_id":"<uuid>","username":"alice"}` → создаёт профиль.
+
+- `GET /v1/user/profile` (с user_id в query) → профиль.
+- `PUT /v1/user/profile` → обновление профиля.
+- `DELETE /v1/user/profile` → удаление профиля.
+- Друзья: `POST/GET/DELETE /v1/user/friends` (согласно proto/user/v1/user.proto).
+
+## gRPC тесты (опционально, grpcurl)
+При необходимости можно дергать gRPC напрямую, указав `-proto proto/...` и include для googleapis. См. примеры в proto или генерируйте через grpcurl с путями к .proto.
 
 ## Примечания
 - В миграциях уникальные префиксы обязательны (Goose: версии должны отличаться).
