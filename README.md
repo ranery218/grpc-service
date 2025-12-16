@@ -50,21 +50,21 @@ go run ./cmd/gateway
 ## HTTP через gateway (основное тестирование)
 Шлюз на `:8080`, REST → gRPC. Публичные маршруты не требуют токен, остальные с `Authorization: Bearer <access_token>`.
 
-- `POST /v1/auth/register`  
-  Body: `{"username":"alice","email":"a@ex.com","password":"pass12345"}`  
+- `POST /v1/auth/register`
+  Body: `{"username":"alice","email":"a@ex.com","password":"pass12345"}`
   Ответ: `{"accessToken","accessExpiresAt","refreshToken","refreshExpiresAt"}`
 
-- `POST /v1/auth/login`  
-  Body: `{"email":"a@ex.com","password":"pass12345"}`  
+- `POST /v1/auth/login`
+  Body: `{"email":"a@ex.com","password":"pass12345"}`
   Ответ: `{"accessToken","accessExpiresAt","refreshToken","refreshExpiresAt"}`
 
-- `POST /v1/auth/refresh`  
+- `POST /v1/auth/refresh`
   Body: `{"refresh_token":"..."}` → новый `access/refresh`.
 
-- `POST /v1/auth/logout`  
+- `POST /v1/auth/logout`
   Body: `{"refresh_token":"..."}` → 200 OK.
 
-- `POST /v1/user/profile`  
+- `POST /v1/user/profile`
   Body: `{"user_id":"<uuid>","username":"alice"}` → создаёт профиль.
 
 - `GET /v1/user/profile` (с user_id в query) → профиль.
@@ -74,9 +74,3 @@ go run ./cmd/gateway
 
 ## gRPC тесты (опционально, grpcurl)
 При необходимости можно дергать gRPC напрямую, указав `-proto proto/...` и include для googleapis. См. примеры в proto или генерируйте через grpcurl с путями к .proto.
-
-## Примечания
-- В миграциях уникальные префиксы обязательны (Goose: версии должны отличаться).
-- В DELETE для refresh-токенов убран LIMIT (Postgres).
-- Для refresh-токена регэксп/генератор должны совпадать (если используешь base64 с паддингом — разреши `=` в валидации или убери паддинг через `base64.RawURLEncoding`).
-- Для тестов grpcurl без proto можно включить gRPC reflection в dev, но по умолчанию выключено.
